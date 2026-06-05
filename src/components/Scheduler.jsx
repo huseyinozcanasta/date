@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Calendar, Clock, Send, Coffee, Sparkles, Loader2 } from 'lucide-react'
+import { config } from '../config'
 
-// Burayi kendi telefon numaranizla degistiriniz (ulke kodu ile)
-const MY_PHONE_NUMBER = '905428468162'
+// Telefon numarasi config dosyasindan alinir
+const MY_PHONE_NUMBER = config.phoneNumber
 
 export default function Scheduler({ onComplete }) {
   const [date, setDate] = useState('')

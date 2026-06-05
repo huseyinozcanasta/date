@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { config } from '../config'
 
-const REEL_URL = "https://www.instagram.com/reel/DW3-oVhxrB8/embed"
+const REEL_URL = config.reels.memeReel
 
 export default function MemeGallery({ onComplete }) {
   const [loaded, setLoaded] = useState(false)

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { RotateCcw, CheckCircle, XCircle, Sparkles } from 'lucide-react'
+import { config } from '../config'
 
 // Mevcut quiz sorulari korunuyor
 const questions = [
@@ -62,11 +63,8 @@ const questions = [
 
 // Reel gosterilecek soru indekslerinden sonra (0-based)
 // Soru 2 (index 1) ve Soru 4 (index 3) sonrasinda reel gosterilir
-const REEL_AFTER_QUESTIONS = [1, 3]
-const REEL_URLS = [
-  "https://www.instagram.com/reel/DZNLlphNXCC/embed",
-  "https://www.instagram.com/reel/DXHqPr3EtBS/embed",
-]
+const REEL_AFTER_QUESTIONS = config.reelAfterQuestions
+const REEL_URLS = config.reels.quizReels
 
 // Instagram Reel embed bileseni
 function ReelInterlude({ onContinue, reelUrl }) {

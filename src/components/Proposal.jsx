@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react'
 import { Heart, Coffee, Sparkles, CheckCircle } from 'lucide-react'
 
-// Kenar boslugu (kacma hesabi icin)
-const PADDING = 16
+// Kenar boslugu (kacma hesabi icin) - mobilde adres cubugu ve notch hesabi
+const PADDING = 24
 
 // Ikna seviyeleri - her kacista bir sonraki seviye
 const PERSUASION_LEVELS = [0, 15, 34, 52, 78, 99]
@@ -37,21 +37,29 @@ export default function Proposal({ onAccept }) {
   // Hayir butonundaki mevcut mesaj
   const currentNoMessage = NO_MESSAGES[Math.min(escapeCount, NO_MESSAGES.length - 1)]
 
-  // Hayir butonunu rastgele pozisyona tasi (gercek boyutlarla)
+  // Hayir butonunu rastgele pozisyona tasi (gercek boyutlarla, mobil uyumlu)
   const handleMove = () => {
-    const vw = window.innerWidth
-    const vh = window.innerHeight
+    // Mobilde adres cubugu/zoom hesabi icin visualViewport tercih et
+    const vw = window.visualViewport?.width ?? window.innerWidth
+    const vh = window.visualViewport?.height ?? window.innerHeight
 
     // Butonun gercek boyutlarini olc
     const btn = noBtnRef.current
     const btnW = btn ? btn.offsetWidth : 160
     const btnH = btn ? btn.offsetHeight : 56
 
+    // Min/max sinirlari hesapla (buton asla ekran disina cikamaz)
+    const minX = PADDING
+    const minY = PADDING
     const maxX = vw - btnW - PADDING
     const maxY = vh - btnH - PADDING
 
-    const newX = Math.floor(Math.random() * Math.max(maxX, PADDING)) + PADDING
-    const newY = Math.floor(Math.random() * Math.max(maxY, PADDING)) + PADDING
+    // Rastgele pozisyon hesapla ve sinirlar icine kilitle (clamp)
+    // Eger buton ekrana sigmiyorsa ortala
+    const rawX = Math.floor(Math.random() * vw)
+    const rawY = Math.floor(Math.random() * vh)
+    const newX = maxX >= minX ? Math.max(minX, Math.min(rawX, maxX)) : (vw - btnW) / 2
+    const newY = maxY >= minY ? Math.max(minY, Math.min(rawY, maxY)) : (vh - btnH) / 2
 
     setNoPos({ x: newX, y: newY })
     // Her kacista ikna sayacini artir
@@ -136,7 +144,7 @@ export default function Proposal({ onAccept }) {
               bg-red-500/80 hover:bg-red-400 text-white font-bold text-base px-8 py-4 rounded-2xl
               shadow-lg shadow-red-500/20 transition-all duration-300
               flex items-center gap-2 cursor-pointer min-w-[160px] justify-center
-              ${noPos === null ? 'relative' : 'fixed'}
+              ${noPos === null ? 'relative' : 'fixed left-0 top-0 touch-manipulation'}
             `}
             style={
               noPos
