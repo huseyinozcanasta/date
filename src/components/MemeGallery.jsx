@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+const REEL_URL = "https://www.instagram.com/reel/DW3-oVhxrB8/embed"
+
 export default function MemeGallery({ onComplete }) {
   const [loaded, setLoaded] = useState(false)
 
@@ -28,7 +30,7 @@ export default function MemeGallery({ onComplete }) {
               </div>
             )}
             <iframe
-              src="https://www.instagram.com/reel/DXHqPr3EtBS/embed"
+              src={REEL_URL}
               className="absolute inset-0 w-full h-full rounded-xl"
               frameBorder="0"
               scrolling="no"

@@ -63,10 +63,13 @@ const questions = [
 // Reel gosterilecek soru indekslerinden sonra (0-based)
 // Soru 2 (index 1) ve Soru 4 (index 3) sonrasinda reel gosterilir
 const REEL_AFTER_QUESTIONS = [1, 3]
-const REEL_URL = "https://www.instagram.com/reel/DXHqPr3EtBS/embed"
+const REEL_URLS = [
+  "https://www.instagram.com/reel/DZNLlphNXCC/embed",
+  "https://www.instagram.com/reel/DXHqPr3EtBS/embed",
+]
 
 // Instagram Reel embed bileseni
-function ReelInterlude({ onContinue }) {
+function ReelInterlude({ onContinue, reelUrl }) {
   const [loaded, setLoaded] = useState(false)
 
   return (
@@ -86,7 +89,7 @@ function ReelInterlude({ onContinue }) {
               </div>
             )}
             <iframe
-              src={REEL_URL}
+              src={reelUrl}
               className="absolute inset-0 w-full h-full rounded-xl"
               frameBorder="0"
               scrolling="no"
@@ -120,6 +123,8 @@ export default function Quiz({ onComplete }) {
   const [animKey, setAnimKey] = useState(0)
   // Reel molasi gosterilsin mi
   const [showReel, setShowReel] = useState(false)
+  // Hangi reel gosterilecek (interlude sirasina gore)
+  const [reelIndex, setReelIndex] = useState(0)
 
   const question = questions[currentQuestion]
 
@@ -146,6 +151,8 @@ export default function Quiz({ onComplete }) {
       setTimeout(() => {
         // Bu sorudan sonra reel gosterilmeli mi?
         if (REEL_AFTER_QUESTIONS.includes(currentQuestion)) {
+          const idx = REEL_AFTER_QUESTIONS.indexOf(currentQuestion)
+          setReelIndex(idx % REEL_URLS.length)
           setShowReel(true)
         } else {
           advanceToNext()
@@ -207,7 +214,7 @@ export default function Quiz({ onComplete }) {
 
         {/* Reel molasi */}
         {showReel ? (
-          <ReelInterlude onContinue={handleReelContinue} />
+          <ReelInterlude onContinue={handleReelContinue} reelUrl={REEL_URLS[reelIndex]} />
         ) : (
           /* Soru karti - glassmorphism + slide-in animasyonu */
           <div
