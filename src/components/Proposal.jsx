@@ -1,9 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Heart, Coffee, Sparkles, CheckCircle } from 'lucide-react'
 
-// Hayir butonu boyutlari ve kenar bosluklari (kacma hesabi icin)
-const BUTTON_WIDTH = 160
-const BUTTON_HEIGHT = 56
+// Kenar boslugu (kacma hesabi icin)
 const PADDING = 16
 
 // Ikna seviyeleri - her kacista bir sonraki seviye
@@ -32,22 +30,28 @@ const HEART_DATA = Array.from({ length: 12 }, (_, i) => ({
 export default function Proposal({ onAccept }) {
   const [noPos, setNoPos] = useState(null) // null = varsayilan pozisyon
   const [escapeCount, setEscapeCount] = useState(0) // Kacis sayaci
+  const noBtnRef = useRef(null) // Hayir butonu ref (gercek boyut olcmek icin)
   // Ikna seviyesi (mevcut escapeCount'a gore)
   const persuasionIndex = Math.min(escapeCount, PERSUASION_LEVELS.length - 1)
   const persuasionPercent = PERSUASION_LEVELS[persuasionIndex]
   // Hayir butonundaki mevcut mesaj
   const currentNoMessage = NO_MESSAGES[Math.min(escapeCount, NO_MESSAGES.length - 1)]
 
-  // Hayir butonunu rastgele pozisyona tasi
+  // Hayir butonunu rastgele pozisyona tasi (gercek boyutlarla)
   const handleMove = () => {
     const vw = window.innerWidth
     const vh = window.innerHeight
 
-    const maxX = vw - BUTTON_WIDTH - PADDING
-    const maxY = vh - BUTTON_HEIGHT - PADDING
+    // Butonun gercek boyutlarini olc
+    const btn = noBtnRef.current
+    const btnW = btn ? btn.offsetWidth : 160
+    const btnH = btn ? btn.offsetHeight : 56
 
-    const newX = Math.floor(Math.random() * maxX) + PADDING
-    const newY = Math.floor(Math.random() * maxY) + PADDING
+    const maxX = vw - btnW - PADDING
+    const maxY = vh - btnH - PADDING
+
+    const newX = Math.floor(Math.random() * Math.max(maxX, PADDING)) + PADDING
+    const newY = Math.floor(Math.random() * Math.max(maxY, PADDING)) + PADDING
 
     setNoPos({ x: newX, y: newY })
     // Her kacista ikna sayacini artir
@@ -124,8 +128,10 @@ export default function Proposal({ onAccept }) {
 
           {/* Hayir Butonu - her kacisti pozisyon ve mesaj degistirir */}
           <button
+            ref={noBtnRef}
             onMouseEnter={handleMove}
             onTouchStart={handleMove}
+            onClick={handleMove}
             className={`
               bg-red-500/80 hover:bg-red-400 text-white font-bold text-base px-8 py-4 rounded-2xl
               shadow-lg shadow-red-500/20 transition-all duration-300
