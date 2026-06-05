@@ -46,15 +46,6 @@ const FUN_MESSAGES = [
   'Evet dersen bu site emekliye ayrılır. Misyon tamamlanır.',
 ]
 
-// ============================================
-// GÖREV TAKİPÇİSİ - kullanici ilerledikce guncellenir
-// ============================================
-const ACHIEVEMENTS = [
-  { id: 'enter', label: 'Siteye giriş yaptın', emoji: '🚀' },
-  { id: 'memes', label: 'Meme bölümünü geçtin', emoji: '😂' },
-  { id: 'quiz', label: 'Testi tamamladın', emoji: '🧠' },
-  { id: 'proposal', label: 'Kritik aşamaya ulaştın', emoji: '☕' },
-]
 
 // Confetti parcasi olusturucu (saf CSS animasyonu)
 function ConfettiPieces() {
@@ -125,31 +116,6 @@ function RisingHearts() {
   )
 }
 
-// Gorev takipci bileseni
-function AchievementTracker({ completedIds }) {
-  return (
-    <div className="fixed top-4 right-4 z-50 scene-fade">
-      <div className="glass rounded-xl px-4 py-3 text-xs sm:text-sm">
-        <p className="font-semibold text-white/80 mb-2">Görevler</p>
-        {ACHIEVEMENTS.map((a) => {
-          const done = completedIds.includes(a.id)
-          return (
-            <div
-              key={a.id}
-              className={`flex items-center gap-2 transition-all duration-500 ${
-                done ? 'opacity-100' : 'opacity-30'
-              }`}
-            >
-              <span className={done ? 'check-pop' : ''}>{done ? '✅' : '⬜'}</span>
-              <span className="text-white/70">{a.label}</span>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
 // ============================================
 // ANA BİLEŞEN - sahne orkestratörü
 // ============================================
@@ -157,25 +123,14 @@ function App() {
   // Mevcut sahne: opening | story | memes | quiz | proposal | scheduler | celebration
   const [scene, setScene] = useState('opening')
 
-  // Tamamlanan gorevler
-  const [achievements, setAchievements] = useState(['enter'])
-
   // Rastgele eglenceli mesaj (her yenilemede farkli)
   // useState initializer ile hesaplanir (render sirasinda saf)
   const [randomMessage] = useState(
     () => FUN_MESSAGES[Math.floor(Math.random() * FUN_MESSAGES.length)]
   )
 
-  // Gorev tamamla yardimcisi
-  const addAchievement = (id) => {
-    setAchievements((prev) => (prev.includes(id) ? prev : [...prev, id]))
-  }
-
   // Sahne gecisleri
-  const goScene = (nextScene, achievementId) => {
-    if (achievementId) addAchievement(achievementId)
-    setScene(nextScene)
-  }
+  const goScene = (nextScene) => setScene(nextScene)
 
   // ============================================
   // AÇILIŞ EKRANI
@@ -209,7 +164,7 @@ function App() {
           </p>
 
           <button
-            onClick={() => goScene('story', 'enter')}
+            onClick={() => goScene('story')}
             className="relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-2xl font-semibold text-lg transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer shadow-lg shadow-purple-500/30 attention-pulse"
           >
             Başlayalım →
@@ -231,60 +186,35 @@ function App() {
   // HİKAYE SAHNESİ
   // ============================================
   if (scene === 'story') {
-    return (
-      <>
-        <AchievementTracker completedIds={achievements} />
-        <Story onComplete={() => goScene('memes')} />
-      </>
-    )
+    return <Story onComplete={() => goScene('memes')} />
   }
 
   // ============================================
   // MEME BÖLÜMÜ
   // ============================================
   if (scene === 'memes') {
-    return (
-      <>
-        <AchievementTracker completedIds={achievements} />
-        <MemeGallery onComplete={() => goScene('quiz', 'memes')} />
-      </>
-    )
+    return <MemeGallery onComplete={() => goScene('quiz')} />
   }
 
   // ============================================
   // QUIZ
   // ============================================
   if (scene === 'quiz') {
-    return (
-      <>
-        <AchievementTracker completedIds={achievements} />
-        <Quiz onComplete={() => goScene('proposal', 'quiz')} />
-      </>
-    )
+    return <Quiz onComplete={() => goScene('proposal')} />
   }
 
   // ============================================
   // TEKLİF EKRANI
   // ============================================
   if (scene === 'proposal') {
-    return (
-      <>
-        <AchievementTracker completedIds={achievements} />
-        <Proposal onAccept={() => goScene('scheduler', 'proposal')} />
-      </>
-    )
+    return <Proposal onAccept={() => goScene('scheduler')} />
   }
 
   // ============================================
   // TAKVİM / PLANLAMA
   // ============================================
   if (scene === 'scheduler') {
-    return (
-      <>
-        <AchievementTracker completedIds={achievements} />
-        <Scheduler onComplete={() => goScene('celebration')} />
-      </>
-    )
+    return <Scheduler onComplete={() => goScene('celebration')} />
   }
 
   // ============================================
@@ -327,10 +257,7 @@ function App() {
           </div>
 
           <button
-            onClick={() => {
-              setScene('opening')
-              setAchievements(['enter'])
-            }}
+            onClick={() => setScene('opening')}
             className="px-8 py-4 glass hover:bg-white/15 rounded-xl font-semibold text-lg transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
           >
             Baştan Başla
