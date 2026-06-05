@@ -60,6 +60,56 @@ const questions = [
   }
 ]
 
+// Reel gosterilecek soru indekslerinden sonra (0-based)
+// Soru 2 (index 1) ve Soru 4 (index 3) sonrasinda reel gosterilir
+const REEL_AFTER_QUESTIONS = [1, 3]
+const REEL_URL = "https://www.instagram.com/reel/DXHqPr3EtBS/embed"
+
+// Instagram Reel embed bileseni
+function ReelInterlude({ onContinue }) {
+  const [loaded, setLoaded] = useState(false)
+
+  return (
+    <div className="scene-fade">
+      <div className="text-center mb-6">
+        <p className="text-white/60 text-sm">Mola zamanı ~ videoyu izle, sonra devam et</p>
+      </div>
+      <div className="w-full max-w-md mx-auto">
+        <div className="glass rounded-2xl p-4 sm:p-5">
+          <div className="relative w-full" style={{ paddingBottom: '177.78%' }}>
+            {!loaded && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-10 h-10 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-3" />
+                  <p className="text-white/60 text-sm">Video yükleniyor...</p>
+                </div>
+              </div>
+            )}
+            <iframe
+              src={REEL_URL}
+              className="absolute inset-0 w-full h-full rounded-xl"
+              frameBorder="0"
+              scrolling="no"
+              allowTransparency="true"
+              allowFullScreen={true}
+              onLoad={() => setLoaded(true)}
+              style={{ opacity: loaded ? 1 : 0, transition: 'opacity 0.5s ease' }}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="text-center mt-6">
+        <button
+          onClick={onContinue}
+          className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+        >
+          Devam et →
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function Quiz({ onComplete }) {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [showMeme, setShowMeme] = useState(false)
@@ -68,8 +118,21 @@ export default function Quiz({ onComplete }) {
   const [answeredCorrectly, setAnsweredCorrectly] = useState([])
   // Soru gecis animasyonu icin key
   const [animKey, setAnimKey] = useState(0)
+  // Reel molasi gosterilsin mi
+  const [showReel, setShowReel] = useState(false)
 
   const question = questions[currentQuestion]
+
+  const advanceToNext = () => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1)
+      setSelectedAnswer(null)
+      setIsCorrect(false)
+      setAnimKey((k) => k + 1)
+    } else {
+      onComplete?.()
+    }
+  }
 
   const handleAnswer = (index) => {
     if (showMeme && !isCorrect) return
@@ -81,20 +144,22 @@ export default function Quiz({ onComplete }) {
       setAnsweredCorrectly([...answeredCorrectly, question.id])
 
       setTimeout(() => {
-        if (currentQuestion < questions.length - 1) {
-          setCurrentQuestion(currentQuestion + 1)
-          setSelectedAnswer(null)
-          setIsCorrect(false)
-          // Animasyon key'ini degistir (yeni slide-in tetikler)
-          setAnimKey((k) => k + 1)
+        // Bu sorudan sonra reel gosterilmeli mi?
+        if (REEL_AFTER_QUESTIONS.includes(currentQuestion)) {
+          setShowReel(true)
         } else {
-          onComplete?.()
+          advanceToNext()
         }
       }, 1500)
     } else {
       setShowMeme(true)
       setIsCorrect(false)
     }
+  }
+
+  const handleReelContinue = () => {
+    setShowReel(false)
+    advanceToNext()
   }
 
   const handleRetry = () => {
@@ -140,84 +205,91 @@ export default function Quiz({ onComplete }) {
           </div>
         </div>
 
-        {/* Soru karti - glassmorphism + slide-in animasyonu */}
-        <div
-          key={animKey}
-          className="glass rounded-2xl p-6 sm:p-8 shadow-xl slide-in"
-        >
-          <h2 className="text-xl sm:text-2xl font-semibold mb-6 text-center leading-relaxed">
-            {question.question}
-          </h2>
+        {/* Reel molasi */}
+        {showReel ? (
+          <ReelInterlude onContinue={handleReelContinue} />
+        ) : (
+          /* Soru karti - glassmorphism + slide-in animasyonu */
+          <div
+            key={animKey}
+            className="glass rounded-2xl p-6 sm:p-8 shadow-xl slide-in"
+          >
+            <h2 className="text-xl sm:text-2xl font-semibold mb-6 text-center leading-relaxed">
+              {question.question}
+            </h2>
 
-          {/* Secenekler */}
-          <div className="space-y-4">
-            {question.options.map((option, index) => {
-              const isSelected = selectedAnswer === index
-              const showCorrect = isCorrect && isSelected
-              const showWrong = showMeme && isSelected && !isCorrect
+            {/* Secenekler */}
+            <div className="space-y-4">
+              {question.options.map((option, index) => {
+                const isSelected = selectedAnswer === index
+                const showCorrect = isCorrect && isSelected
+                const showWrong = showMeme && isSelected && !isCorrect
 
-              return (
-                <button
-                  key={index}
-                  onClick={() => handleAnswer(index)}
-                  disabled={showMeme && !isCorrect}
-                  className={`
-                    w-full min-h-12 px-5 py-4 rounded-xl text-left font-medium text-base
-                    transition-all duration-300 transform
-                    ${showCorrect
-                      ? 'bg-green-600/80 border-green-400 scale-105 shadow-lg shadow-green-500/30'
-                      : showWrong
-                      ? 'bg-red-600/80 border-red-400 scale-[0.98] opacity-75'
-                      : 'bg-white/10 hover:bg-white/20 border-white/20 hover:scale-[1.02] active:scale-[0.98]'
-                    }
-                    border-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50
-                    flex items-center justify-between gap-3
-                  `}
-                >
-                  <span>{option}</span>
-                  {showCorrect && <CheckCircle className="w-6 h-6 text-green-200 flex-shrink-0 check-pop" />}
-                  {showWrong && <XCircle className="w-6 h-6 text-red-200 flex-shrink-0" />}
-                </button>
-              )
-            })}
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleAnswer(index)}
+                    disabled={showMeme && !isCorrect}
+                    className={`
+                      w-full min-h-12 px-5 py-4 rounded-xl text-left font-medium text-base
+                      transition-all duration-300 transform
+                      ${showCorrect
+                        ? 'bg-green-600/80 border-green-400 scale-105 shadow-lg shadow-green-500/30'
+                        : showWrong
+                        ? 'bg-red-600/80 border-red-400 scale-[0.98] opacity-75'
+                        : 'bg-white/10 hover:bg-white/20 border-white/20 hover:scale-[1.02] active:scale-[0.98]'
+                      }
+                      border-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50
+                      flex items-center justify-between gap-3
+                    `}
+                  >
+                    <span>{option}</span>
+                    {showCorrect && <CheckCircle className="w-6 h-6 text-green-200 flex-shrink-0 check-pop" />}
+                    {showWrong && <XCircle className="w-6 h-6 text-red-200 flex-shrink-0" />}
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Yanlis cevap - meme gosterimi */}
+            {showMeme && !isCorrect && (
+              <div className="mt-6 scene-fade">
+                <div className="bg-red-900/30 border-2 border-red-500/40 rounded-xl p-5 text-center">
+                  <div className="text-4xl mb-3">😂</div>
+                  <p className="text-white/90 text-lg leading-relaxed mb-4">
+                    {question.memeText}
+                  </p>
+                  <button
+                    onClick={handleRetry}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    <RotateCcw className="w-5 h-5" />
+                    Tekrar Dene
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Dogru cevap - basari mesaji */}
+            {isCorrect && (
+              <div className="mt-6 scene-fade">
+                <div className="bg-green-900/30 border-2 border-green-500/40 rounded-xl p-5 text-center">
+                  <div className="text-4xl mb-2">🎉</div>
+                  <p className="text-green-200 text-lg font-semibold">
+                    Harika! Doğru cevap!
+                  </p>
+                  <p className="text-white/60 text-sm mt-2">
+                    {REEL_AFTER_QUESTIONS.includes(currentQuestion)
+                      ? 'Video molasına geçiliyor...'
+                      : currentQuestion < questions.length - 1
+                        ? 'Sonraki soruya geçiliyor...'
+                        : 'Son soruyu da bildin! Tebrikler! 🏆'}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
-
-          {/* Yanlis cevap - meme gosterimi */}
-          {showMeme && !isCorrect && (
-            <div className="mt-6 scene-fade">
-              <div className="bg-red-900/30 border-2 border-red-500/40 rounded-xl p-5 text-center">
-                <div className="text-4xl mb-3">😂</div>
-                <p className="text-white/90 text-lg leading-relaxed mb-4">
-                  {question.memeText}
-                </p>
-                <button
-                  onClick={handleRetry}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
-                >
-                  <RotateCcw className="w-5 h-5" />
-                  Tekrar Dene
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Dogru cevap - basari mesaji */}
-          {isCorrect && (
-            <div className="mt-6 scene-fade">
-              <div className="bg-green-900/30 border-2 border-green-500/40 rounded-xl p-5 text-center">
-                <div className="text-4xl mb-2">🎉</div>
-                <p className="text-green-200 text-lg font-semibold">
-                  Harika! Doğru cevap!
-                </p>
-                <p className="text-white/60 text-sm mt-2">
-                  {currentQuestion < questions.length - 1
-                    ? 'Sonraki soruya geçiliyor...'
-                    : 'Son soruyu da bildin! Tebrikler! 🏆'}
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   )
