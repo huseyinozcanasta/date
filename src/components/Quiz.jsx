@@ -18,7 +18,7 @@ const questions = [
     id: 2,
     question: "İlk buluşmada nereye gidiyoruz?",
     options: [
-      "Dünyanın en lüks restoranı",
+      "Yemekkk",
       "Mis gibi bir üçüncü nesil kahveci",
       "Sanayi sitesinde tostçu"
     ],
@@ -34,29 +34,29 @@ const questions = [
       "Stack Overflow'da çözüm arıyorum"
     ],
     correctAnswer: 2,
-    memeText: "Uyumak mı? O da ne? 🦉 Gece 3'te debug yapan insanlarız biz! Doğru cevap Stack Overflow'du!"
+    memeText: "Uyumak mı? O da ne? (Keşke😓) 🦉 Gece 3'te debug yapan insanlarız biz! Doğru cevap Stack Overflow'du!"
   },
   {
     id: 4,
     question: "En büyük korkum nedir?",
     options: [
       "Örümcekler",
-      "Production'da bug çıkması",
+      "Yılanlar",
       "Karanlık"
     ],
     correctAnswer: 1,
-    memeText: "Örümcek mi? Hayır canım... 🕷️ Ama production bug'ı gerçekten korkutucu! Deploy butonuna basarken elim titriyor..."
+    memeText: "Örümcek mi? Hayır canım... 🕷️ Ama Yılanlar 🐍 gerçekten korkutucu! Düşünürken titriyorum 😱..."
   },
   {
     id: 5,
     question: "Hafta sonu planım nedir?",
     options: [
-      "Dışarı çıkıp sosyalleşmek",
-      "Yeni bir framework öğrenmek",
+      "OSCE",
+      "Yüzmek",
       "12 saat uyumak"
     ],
     correctAnswer: 1,
-    memeText: "Sosyalleşmek mi? O da ne? 🤖 Hafta sonu = yeni technology öğrenme günü! Ama 12 saat uyumak da fena değil..."
+    memeText: "OSCE mi? O da ne? 🏫 Hafta sonu = 🏊‍♀️ Ama 12 saat uyumak da fena değil..."
   }
 ]
 

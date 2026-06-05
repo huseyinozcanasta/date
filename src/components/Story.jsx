@@ -11,7 +11,7 @@ const scenes = [
   {
     id: 2,
     main: 'Sana bir soru sormak istiyorum.',
-    sub: 'Ama hemen değil.',
+    sub: 'Ama hemen değil. (KORKMA nksfvbrf 😏)',
   },
   {
     id: 3,
@@ -21,7 +21,7 @@ const scenes = [
   {
     id: 4,
     main: 'Yine de devam ettiğine göre...',
-    sub: 'umut var. 😏',
+    sub: 'Boş yapıyorum. 😏',
   },
 ]
 
