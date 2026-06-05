@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { RotateCcw, CheckCircle, XCircle, Sparkles } from 'lucide-react'
 
+// Mevcut quiz sorulari korunuyor
 const questions = [
   {
     id: 1,
@@ -65,24 +66,27 @@ export default function Quiz({ onComplete }) {
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const [isCorrect, setIsCorrect] = useState(false)
   const [answeredCorrectly, setAnsweredCorrectly] = useState([])
+  // Soru gecis animasyonu icin key
+  const [animKey, setAnimKey] = useState(0)
 
   const question = questions[currentQuestion]
 
   const handleAnswer = (index) => {
-    if (showMeme && !isCorrect) return // Locked on wrong answer
+    if (showMeme && !isCorrect) return
 
     setSelectedAnswer(index)
-    
+
     if (index === question.correctAnswer) {
       setIsCorrect(true)
       setAnsweredCorrectly([...answeredCorrectly, question.id])
-      
-      // Move to next question after delay
+
       setTimeout(() => {
         if (currentQuestion < questions.length - 1) {
           setCurrentQuestion(currentQuestion + 1)
           setSelectedAnswer(null)
           setIsCorrect(false)
+          // Animasyon key'ini degistir (yeni slide-in tetikler)
+          setAnimKey((k) => k + 1)
         } else {
           onComplete?.()
         }
@@ -102,39 +106,50 @@ export default function Quiz({ onComplete }) {
   const progress = (answeredCorrectly.length / questions.length) * 100
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-red-900 text-white flex flex-col items-center justify-center p-4 sm:p-6">
-      <div className="w-full max-w-2xl">
-        {/* Header */}
-        <div className="text-center mb-8 animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-red-900 text-white flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden">
+      {/* Arka plan isiklari */}
+      <div className="orb w-64 h-64 bg-purple-600 -top-16 -right-16" />
+      <div className="orb w-48 h-48 bg-pink-600 bottom-10 -left-10" style={{ animationDelay: '8s' }} />
+
+      <div className="w-full max-w-2xl relative z-10">
+        {/* Baslik */}
+        <div className="text-center mb-8 scene-fade">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="w-8 h-8 text-yellow-400" />
             <h1 className="text-3xl sm:text-4xl font-bold">Beni Tanıyor musun?</h1>
             <Sparkles className="w-8 h-8 text-yellow-400" />
           </div>
-          <p className="text-gray-300">Eğlenceli quiz zamanı! 🎉</p>
+          <p className="text-white/60">Eğlenceli quiz zamanı! Bakalım beni ne kadar tanıyorsun 🎉</p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mb-6">
-          <div className="flex justify-between text-sm text-gray-300 mb-2">
+        {/* Ilerleme cubugu - gradient ve glow efektli */}
+        <div className="mb-6 scene-fade" style={{ animationDelay: '0.2s' }}>
+          <div className="flex justify-between text-sm text-white/70 mb-2">
             <span>Soru {currentQuestion + 1} / {questions.length}</span>
             <span>{answeredCorrectly.length} doğru</span>
           </div>
-          <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden">
-            <div 
-              className="bg-gradient-to-r from-green-400 to-emerald-500 h-full transition-all duration-500 ease-out"
-              style={{ width: `${progress}%` }}
+          <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700 ease-out"
+              style={{
+                width: `${progress}%`,
+                background: 'linear-gradient(90deg, #4ade80, #22d3ee)',
+                boxShadow: '0 0 12px rgba(74, 222, 128, 0.5)',
+              }}
             />
           </div>
         </div>
 
-        {/* Question Card */}
-        <div className="bg-gray-800/60 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-gray-700 shadow-2xl animate-fade-in">
-          <h2 className="text-xl sm:text-2xl font-semibold mb-6 text-center">
+        {/* Soru karti - glassmorphism + slide-in animasyonu */}
+        <div
+          key={animKey}
+          className="glass rounded-2xl p-6 sm:p-8 shadow-2xl slide-in"
+        >
+          <h2 className="text-xl sm:text-2xl font-semibold mb-6 text-center leading-relaxed">
             {question.question}
           </h2>
 
-          {/* Options */}
+          {/* Secenekler */}
           <div className="space-y-3">
             {question.options.map((option, index) => {
               const isSelected = selectedAnswer === index
@@ -148,31 +163,31 @@ export default function Quiz({ onComplete }) {
                   disabled={showMeme && !isCorrect}
                   className={`
                     w-full min-h-12 px-5 py-4 rounded-xl text-left font-medium
-                    transition-all duration-200 transform
-                    ${showCorrect 
-                      ? 'bg-green-600 border-green-400 scale-105' 
+                    transition-all duration-300 transform
+                    ${showCorrect
+                      ? 'bg-green-600/80 border-green-400 scale-105 shadow-lg shadow-green-500/30'
                       : showWrong
-                      ? 'bg-red-600 border-red-400 scale-95 opacity-75'
-                      : 'bg-gray-700/50 hover:bg-gray-700 border-gray-600 hover:scale-102 active:scale-98'
+                      ? 'bg-red-600/80 border-red-400 scale-95 opacity-75'
+                      : 'bg-white/10 hover:bg-white/20 border-white/20 hover:scale-[1.02] active:scale-[0.98]'
                     }
                     border-2 cursor-pointer disabled:cursor-not-allowed
                     flex items-center justify-between gap-3
                   `}
                 >
                   <span>{option}</span>
-                  {showCorrect && <CheckCircle className="w-6 h-6 text-green-200 flex-shrink-0" />}
+                  {showCorrect && <CheckCircle className="w-6 h-6 text-green-200 flex-shrink-0 check-pop" />}
                   {showWrong && <XCircle className="w-6 h-6 text-red-200 flex-shrink-0" />}
                 </button>
               )
             })}
           </div>
 
-          {/* Meme Display */}
+          {/* Yanlis cevap - meme gosterimi */}
           {showMeme && !isCorrect && (
-            <div className="mt-6 animate-fade-in">
-              <div className="bg-red-900/40 border-2 border-red-500/50 rounded-xl p-5 text-center">
+            <div className="mt-6 scene-fade">
+              <div className="bg-red-900/30 border-2 border-red-500/40 rounded-xl p-5 text-center">
                 <div className="text-4xl mb-3">😂</div>
-                <p className="text-gray-200 text-lg leading-relaxed mb-4">
+                <p className="text-white/90 text-lg leading-relaxed mb-4">
                   {question.memeText}
                 </p>
                 <button
@@ -186,17 +201,17 @@ export default function Quiz({ onComplete }) {
             </div>
           )}
 
-          {/* Success Message */}
+          {/* Dogru cevap - basari mesaji */}
           {isCorrect && (
-            <div className="mt-6 animate-fade-in">
-              <div className="bg-green-900/40 border-2 border-green-500/50 rounded-xl p-5 text-center">
+            <div className="mt-6 scene-fade">
+              <div className="bg-green-900/30 border-2 border-green-500/40 rounded-xl p-5 text-center">
                 <div className="text-4xl mb-2">🎉</div>
                 <p className="text-green-200 text-lg font-semibold">
                   Harika! Doğru cevap!
                 </p>
-                <p className="text-gray-300 text-sm mt-2">
-                  {currentQuestion < questions.length - 1 
-                    ? 'Sonraki soruya geçiliyor...' 
+                <p className="text-white/60 text-sm mt-2">
+                  {currentQuestion < questions.length - 1
+                    ? 'Sonraki soruya geçiliyor...'
                     : 'Son soruyu da bildin! Tebrikler! 🏆'}
                 </p>
               </div>
@@ -204,22 +219,6 @@ export default function Quiz({ onComplete }) {
           )}
         </div>
       </div>
-
-      <style>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.4s ease-out;
-        }
-      `}</style>
     </div>
   )
 }

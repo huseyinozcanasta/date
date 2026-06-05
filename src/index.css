@@ -1,1 +1,251 @@
+/* Tailwind CSS v4 import */
 @import "tailwindcss";
+
+/* Google Font loaded via <link> in index.html for better performance */
+
+/* Apply font globally */
+body {
+  font-family: 'Poppins', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ============================================
+   GLASSMORPHISM UTILITY
+   Frosted glass effect for cards and panels
+   ============================================ */
+.glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================
+   SCENE TRANSITION - fade in/out between scenes
+   ============================================ */
+.scene-fade {
+  animation: sceneFade 0.6s ease-out forwards;
+}
+
+@keyframes sceneFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   CONFETTI - falling colored squares for celebration
+   Uses multiple staggered animations
+   ============================================ */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti-piece {
+  position: fixed;
+  top: -10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: confetti-fall linear forwards;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* ============================================
+   HEART RISE - hearts floating upward for celebration
+   ============================================ */
+@keyframes heart-rise {
+  0% {
+    transform: translateY(0) scale(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1);
+  }
+  100% {
+    transform: translateY(-200px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* ============================================
+   GLOW PULSE - soft pulsing glow for buttons
+   ============================================ */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(74, 222, 128, 0.4), 0 0 30px rgba(74, 222, 128, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.6), 0 0 50px rgba(74, 222, 128, 0.3);
+  }
+}
+
+.glow-btn {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   BLUR IN - background blur transition
+   ============================================ */
+@keyframes blur-in {
+  from {
+    filter: blur(20px);
+    opacity: 0;
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   TILT SHAKE - subtle wobble for meme cards
+   ============================================ */
+@keyframes tilt-shake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-2deg); }
+  75% { transform: rotate(2deg); }
+}
+
+/* ============================================
+   FLOAT SLOW - gentle floating for background elements
+   ============================================ */
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-30px) rotate(5deg);
+  }
+}
+
+.float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+/* ============================================
+   SLIDE IN - entrance animation for quiz questions
+   ============================================ */
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in {
+  animation: slide-in 0.5s ease-out;
+}
+
+/* ============================================
+   TYPEWRITER - text reveal effect for story scenes
+   ============================================ */
+@keyframes typewriter-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ============================================
+   GRADIENT ORB - slow moving background blobs
+   ============================================ */
+@keyframes orb-move {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  animation: orb-move 15s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ============================================
+   TOAST - floating notification for random messages
+   ============================================ */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.9);
+  }
+}
+
+/* ============================================
+   ACHIEVEMENT CHECK - checkmark pop animation
+   ============================================ */
+@keyframes check-pop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.check-pop {
+  animation: check-pop 0.4s ease-out;
+}
+
+/* ============================================
+   3D TILT for meme cards (hover perspective)
+   Applied via inline styles + this base
+   ============================================ */
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+}
+
+.tilt-card:hover {
+  transform: perspective(600px) rotateX(5deg) rotateY(-5deg) scale(1.03);
+}
+
+/* Smooth scrollbar for a polished feel */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}

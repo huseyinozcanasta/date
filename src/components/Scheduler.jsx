@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Calendar, Clock, Send, Coffee, Sparkles } from 'lucide-react'
 
-// Burayı kendi telefon numaranızla değiştirin (ülke kodu ile)
+// Burayi kendi telefon numaranizla degistiriniz (ulke kodu ile)
 const MY_PHONE_NUMBER = '905428468162'
 
 export default function Scheduler({ onComplete }) {
@@ -11,7 +11,7 @@ export default function Scheduler({ onComplete }) {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    // Tarihi Türkçe formatına çevir
+    // Tarihi Turkce formatina cevir
     const dateObj = new Date(`${date}T${time}`)
     const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi']
     const months = [
@@ -29,35 +29,38 @@ export default function Scheduler({ onComplete }) {
       `Merhaba! ☕ Kahve randevumuz için tarih belirledim:\n\n` +
       `📅 ${dayNum} ${monthName} ${dateObj.getFullYear()}, ${dayName}\n` +
       `🕐 Saat ${hours}:${minutes}\n\n` +
-      `Seni sabırsızlıkla bekliyorum, çok heyecanlıyım! 💕`
+      `Sabırsızlıkla bekliyorum! 💕`
 
     const encodedText = encodeURIComponent(message)
     const url = `https://wa.me/${MY_PHONE_NUMBER}?text=${encodedText}`
 
     window.open(url, '_blank')
-
-    // Ana bileşene bildir
     onComplete?.()
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-900 via-orange-900 to-rose-900 text-white flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-md bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl animate-fade-in">
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-amber-900 via-orange-900 to-rose-900 text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* Arka plan yavas hareket eden isiklar */}
+      <div className="orb w-72 h-72 bg-amber-500 -top-20 -right-20" />
+      <div className="orb w-56 h-56 bg-rose-500 bottom-10 -left-16" style={{ animationDelay: '6s' }} />
+
+      {/* Ana kart - premium glassmorphism */}
+      <div className="w-full max-w-md glass rounded-3xl p-8 shadow-2xl scene-fade relative z-10">
+        {/* Baslik */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-3">
             <Coffee className="w-8 h-8 text-amber-300" />
             <Sparkles className="w-7 h-7 text-yellow-300" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">Randevu Planla</h1>
-          <p className="text-amber-100">
-            Kahvemizi ne zaman içelim? Tarih ve saat seç, WhatsApp'tan haber ver! ☕
+          <h1 className="text-3xl font-bold mb-2">Son Adım!</h1>
+          <p className="text-white/60">
+            Kahvemizi ne zaman içelim? Tarih ve saat seç, WhatsApp'tan haber ver ☕
           </p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Date */}
+          {/* Tarih */}
           <div>
             <label
               htmlFor="date"
@@ -72,11 +75,11 @@ export default function Scheduler({ onComplete }) {
               required
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/25 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all cursor-pointer [color-scheme:dark]"
+              className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all cursor-pointer [color-scheme:dark]"
             />
           </div>
 
-          {/* Time */}
+          {/* Saat */}
           <div>
             <label
               htmlFor="time"
@@ -91,11 +94,11 @@ export default function Scheduler({ onComplete }) {
               required
               value={time}
               onChange={(e) => setTime(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/25 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all cursor-pointer [color-scheme:dark]"
+              className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all cursor-pointer [color-scheme:dark]"
             />
           </div>
 
-          {/* Submit */}
+          {/* Gonder butonu */}
           <button
             type="submit"
             className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 rounded-xl font-bold text-lg shadow-lg shadow-green-500/30 transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
@@ -105,18 +108,10 @@ export default function Scheduler({ onComplete }) {
           </button>
         </form>
 
-        <p className="text-center text-xs text-amber-200/60 mt-5">
+        <p className="text-center text-xs text-white/40 mt-5">
           Gönder butonuna bastığında WhatsApp açılacak ve mesaj otomatik doldurulacak 💬
         </p>
       </div>
-
-      <style>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(16px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in { animation: fade-in 0.6s ease-out; }
-      `}</style>
     </div>
   )
 }

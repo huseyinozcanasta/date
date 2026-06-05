@@ -1,144 +1,347 @@
-import { useState } from 'react'
-import { Rocket, Heart, Zap, Play, Coffee, CheckCircle } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Heart, Coffee, CheckCircle } from 'lucide-react'
+import Story from './components/Story'
+import MemeGallery from './components/MemeGallery'
 import Quiz from './components/Quiz'
 import Proposal from './components/Proposal'
 import Scheduler from './components/Scheduler'
 
+// ============================================
+// RASTGELE EĞLENCELİ MESAJLAR (30+)
+// Her sayfa yenilemesinde farkli bir mesaj gosterilir
+// Eglenceli ton, romantik degil
+// ============================================
+const FUN_MESSAGES = [
+  'Bu site %99 gereksiz efor içerir.',
+  'Kodlar çalıştı. Şimdi sıra kahvede.',
+  'Normalde bu kadar uğraşmam. Sen özelsin... değil mi?',
+  'Bu sayfayı kapatırsan butonlar üzülüyor.',
+  'Yapay zeka bile bu kadar efor sarf etmezdi.',
+  'Bu siteyi yaparken 47 kez "son kez" dedim.',
+  'CSS debug etmek > ilk mesaj atmak.',
+  'Kahve içmeyi sever misin? Bu site bunun için var.',
+  'Bu sayfa responsive. Tıpkı benim duygularım gibi.',
+  'Buraya kadar okuduysan zaten kazandın.',
+  'Deploy ederken elim titredi, umarım beğenirsin.',
+  'Bu sitede cookie yok. Sadece umut var.',
+  'Git push --force yaptım, geri dönüş yok.',
+  '404: Red cevabı bulunamadı.',
+  'Bu kahve daveti değil, UX case study.',
+  'npm install confidence --save',
+  'Bu sitenin backend\'i: cesaret.',
+  'Kahve = sıvı motivasyon.',
+  'Evet butonu daha büyük. Bu bir işaret.',
+  'Hayır butonu kaçıyor çünkü utanıyor.',
+  'Bu sayfayı görmek bile bir ilk adım.',
+  'İstatistiklere göre %87 kişi evet diyor. Geriye kalan %13 hâlâ arıyor.',
+  'Bu site mobilde de çalışır. Aşk her cihazda güzel.',
+  'console.log("umarım gülümsedin")',
+  'Bu projenin scrum master\'ı: kalbim.',
+  'Kahve siparişi: bir büyük cesaret lütfen.',
+  'Sprint review: site hazır, kahve bekleniyor.',
+  'Bu site open-source değil. Sadece sana özel.',
+  'Bug bounty programı: bir gülümseme.',
+  'Bu mesajlar rastgele. Ama site değil.',
+  'Test coverage: %100. Özgüven: %47.',
+  'Evet dersen bu site emekliye ayrılır. Misyon tamamlanır.',
+]
+
+// ============================================
+// GÖREV TAKİPÇİSİ - kullanici ilerledikce guncellenir
+// ============================================
+const ACHIEVEMENTS = [
+  { id: 'enter', label: 'Siteye giriş yaptın', emoji: '🚀' },
+  { id: 'memes', label: 'Meme bölümünü geçtin', emoji: '😂' },
+  { id: 'quiz', label: 'Testi tamamladın', emoji: '🧠' },
+  { id: 'proposal', label: 'Kritik aşamaya ulaştın', emoji: '☕' },
+]
+
+// Confetti parcasi olusturucu (saf CSS animasyonu)
+function ConfettiPieces() {
+  const pieces = useMemo(
+    () =>
+      Array.from({ length: 40 }, (_, i) => ({
+        id: i,
+        // Deterministik pozisyonlar (render sirasinda sabit)
+        left: (i * 2.5) % 100,
+        delay: (i * 0.15) % 3,
+        duration: 2 + (i * 0.3) % 3,
+        color: ['#f472b6', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa', '#fb923c'][i % 6],
+        size: 6 + (i % 6),
+      })),
+    []
+  )
+
+  return (
+    <>
+      {pieces.map((p) => (
+        <div
+          key={p.id}
+          className="confetti-piece"
+          style={{
+            left: `${p.left}%`,
+            width: `${p.size}px`,
+            height: `${p.size}px`,
+            backgroundColor: p.color,
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s`,
+            borderRadius: p.id % 3 === 0 ? '50%' : '2px',
+          }}
+        />
+      ))}
+    </>
+  )
+}
+
+// Yüksen kalpler (kutlama ekraninda)
+function RisingHearts() {
+  const hearts = useMemo(
+    () =>
+      Array.from({ length: 10 }, (_, i) => ({
+        id: i,
+        left: 10 + (i * 9) % 80,
+        delay: (i * 0.5) % 4,
+        size: 16 + (i * 3) % 20,
+      })),
+    []
+  )
+
+  return (
+    <>
+      {hearts.map((h) => (
+        <Heart
+          key={h.id}
+          className="absolute text-pink-400/60"
+          style={{
+            left: `${h.left}%`,
+            bottom: '-20px',
+            width: `${h.size}px`,
+            height: `${h.size}px`,
+            animation: `heart-rise 3s ease-out ${h.delay}s infinite`,
+          }}
+        />
+      ))}
+    </>
+  )
+}
+
+// Gorev takipci bileseni
+function AchievementTracker({ completedIds }) {
+  return (
+    <div className="fixed top-3 right-3 sm:top-4 sm:right-4 z-50 scene-fade">
+      <div className="glass rounded-xl px-3 py-2 text-xs sm:text-sm">
+        <p className="font-semibold text-white/80 mb-1">Görevler</p>
+        {ACHIEVEMENTS.map((a) => {
+          const done = completedIds.includes(a.id)
+          return (
+            <div
+              key={a.id}
+              className={`flex items-center gap-1.5 transition-all duration-500 ${
+                done ? 'opacity-100' : 'opacity-30'
+              }`}
+            >
+              <span className={done ? 'check-pop' : ''}>{done ? '✅' : '⬜'}</span>
+              <span className="text-white/70">{a.label}</span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ============================================
+// ANA BİLEŞEN - sahne orkestratörü
+// ============================================
 function App() {
-  const [count, setCount] = useState(0)
-  const [showQuiz, setShowQuiz] = useState(false)
-  const [quizCompleted, setQuizCompleted] = useState(false)
-  const [accepted, setAccepted] = useState(false)
-  const [scheduled, setScheduled] = useState(false)
+  // Mevcut sahne: opening | story | memes | quiz | proposal | scheduler | celebration
+  const [scene, setScene] = useState('opening')
 
-  const handleQuizComplete = () => {
-    setQuizCompleted(true)
-    setShowQuiz(false)
+  // Tamamlanan gorevler
+  const [achievements, setAchievements] = useState(['enter'])
+
+  // Rastgele eglenceli mesaj (her yenilemede farkli)
+  // useState initializer ile hesaplanir (render sirasinda saf)
+  const [randomMessage] = useState(
+    () => FUN_MESSAGES[Math.floor(Math.random() * FUN_MESSAGES.length)]
+  )
+
+  // Gorev tamamla yardimcisi
+  const addAchievement = (id) => {
+    setAchievements((prev) => (prev.includes(id) ? prev : [...prev, id]))
   }
 
-  const handleStartQuiz = () => {
-    setShowQuiz(true)
-    setQuizCompleted(false)
-    setAccepted(false)
-    setScheduled(false)
+  // Sahne gecisleri
+  const goScene = (nextScene, achievementId) => {
+    if (achievementId) addAchievement(achievementId)
+    setScene(nextScene)
   }
 
-  const handleAccept = () => {
-    setAccepted(true)
-  }
-
-  const handleScheduled = () => {
-    setScheduled(true)
-  }
-
-  // Quiz is active
-  if (showQuiz && !quizCompleted) {
-    return <Quiz onComplete={handleQuizComplete} />
-  }
-
-  // Proposal screen after quiz
-  if (quizCompleted && !accepted) {
-    return <Proposal onAccept={handleAccept} />
-  }
-
-  // Scheduler screen after accepting proposal
-  if (accepted && !scheduled) {
-    return <Scheduler onComplete={handleScheduled} />
-  }
-
-  // Final success screen after WhatsApp redirect
-  if (scheduled) {
+  // ============================================
+  // AÇILIŞ EKRANI
+  // ============================================
+  if (scene === 'opening') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-800 via-rose-800 to-red-800 text-white flex flex-col items-center justify-center p-6 animate-fade-in">
-        <div className="text-center max-w-2xl">
-          <div className="relative inline-block mb-6">
-            <CheckCircle className="w-28 h-28 text-green-400 mx-auto animate-bounce" />
-            <Heart className="w-10 h-10 text-red-400 absolute -top-2 -right-2 animate-pulse" />
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
+        {/* Yavas hareket eden gradient orblar */}
+        <div className="orb w-80 h-80 bg-purple-600 top-1/4 left-1/4" />
+        <div className="orb w-60 h-60 bg-blue-600 bottom-1/4 right-1/4" style={{ animationDelay: '5s' }} />
+        <div className="orb w-40 h-40 bg-pink-600 top-1/2 right-1/3" style={{ animationDelay: '10s' }} />
+
+        {/* Ana kart - glassmorphism */}
+        <div className="relative z-10 max-w-lg w-full glass rounded-3xl p-8 sm:p-10 text-center scene-fade">
+          {/* Kucuk kalp animasyonlari */}
+          <div className="absolute -top-3 -right-3">
+            <Heart className="w-6 h-6 text-pink-400/40 float-slow" />
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-300 to-pink-300 bg-clip-text text-transparent">
-            Plan Gönderildi!
+          <div className="absolute -bottom-2 -left-2">
+            <Heart className="w-5 h-5 text-pink-400/30 float-slow" style={{ animationDelay: '2s' }} />
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl font-bold mb-4 leading-tight">
+            Normal insanlar mesaj atıyor.
           </h1>
-          <p className="text-2xl text-pink-100 mb-4">
-            Sabırsızlıkla bekliyorum! ❤️
+          <p className="text-xl sm:text-2xl text-white/70 mb-2">
+            Ben ise küçük bir web sitesi yaptım.
           </p>
-          <p className="text-lg text-pink-200 mb-8">
-            WhatsApp'tan mesajın gönderildi. Kahve zamanı yaklaşıyor... ☕
+          <p className="text-sm text-white/40 mb-8">
+            Bu biraz gereksiz miydi? Evet.
           </p>
-          <div className="flex items-center justify-center gap-3 text-5xl mb-8">
-            <Coffee /> <Heart className="text-red-400 animate-pulse" /> <Coffee />
-          </div>
+
           <button
-            onClick={() => {
-              setQuizCompleted(false)
-              setAccepted(false)
-              setScheduled(false)
-            }}
-            className="px-8 py-4 bg-white/20 hover:bg-white/30 backdrop-blur rounded-xl font-semibold text-lg transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer border border-white/30"
+            onClick={() => goScene('story', 'enter')}
+            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-2xl font-semibold text-lg transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer shadow-lg shadow-purple-500/30"
           >
-            Baştan Başla
+            Başlayalım →
           </button>
         </div>
-        <style>{`
-          @keyframes fade-in {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          .animate-fade-in { animation: fade-in 0.5s ease-out; }
-        `}</style>
+
+        {/* Rastgele eglenceli mesaj - alt kısımda toast */}
+        <div
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 glass rounded-xl px-4 py-2 text-sm text-white/50 max-w-sm text-center"
+          style={{ animation: 'toast-in 0.6s ease-out 1s both' }}
+        >
+          {randomMessage}
+        </div>
       </div>
     )
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white flex flex-col items-center justify-center p-6">
-      <div className="text-center max-w-2xl">
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <Rocket className="w-10 h-10 text-purple-400" />
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Vite + React
+  // ============================================
+  // HİKAYE SAHNESİ
+  // ============================================
+  if (scene === 'story') {
+    return (
+      <>
+        <AchievementTracker completedIds={achievements} />
+        <Story onComplete={() => goScene('memes')} />
+      </>
+    )
+  }
+
+  // ============================================
+  // MEME BÖLÜMÜ
+  // ============================================
+  if (scene === 'memes') {
+    return (
+      <>
+        <AchievementTracker completedIds={achievements} />
+        <MemeGallery onComplete={() => goScene('quiz', 'memes')} />
+      </>
+    )
+  }
+
+  // ============================================
+  // QUIZ
+  // ============================================
+  if (scene === 'quiz') {
+    return (
+      <>
+        <AchievementTracker completedIds={achievements} />
+        <Quiz onComplete={() => goScene('proposal', 'quiz')} />
+      </>
+    )
+  }
+
+  // ============================================
+  // TEKLİF EKRANI
+  // ============================================
+  if (scene === 'proposal') {
+    return (
+      <>
+        <AchievementTracker completedIds={achievements} />
+        <Proposal onAccept={() => goScene('scheduler', 'proposal')} />
+      </>
+    )
+  }
+
+  // ============================================
+  // TAKVİM / PLANLAMA
+  // ============================================
+  if (scene === 'scheduler') {
+    return (
+      <>
+        <AchievementTracker completedIds={achievements} />
+        <Scheduler onComplete={() => goScene('celebration')} />
+      </>
+    )
+  }
+
+  // ============================================
+  // KUTLAMA EKRANI
+  // ============================================
+  if (scene === 'celebration') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-rose-800 to-red-900 text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
+        {/* Confetti */}
+        <ConfettiPieces />
+
+        {/* Yukselen kalpler */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <RisingHearts />
+        </div>
+
+        {/* Arka plan isiklari */}
+        <div className="orb w-72 h-72 bg-pink-500 top-1/3 left-1/4" />
+        <div className="orb w-56 h-56 bg-amber-500 bottom-1/4 right-1/4" style={{ animationDelay: '4s' }} />
+
+        {/* Ana icerik - blur gecis efekti */}
+        <div className="relative z-10 text-center max-w-2xl scene-fade" style={{ animation: 'blur-in 1s ease-out' }}>
+          <div className="relative inline-block mb-6">
+            <CheckCircle className="w-28 h-28 text-green-400 mx-auto" />
+            <Heart className="w-10 h-10 text-red-400 absolute -top-2 -right-2 float-slow" />
+          </div>
+
+          <h1 className="text-3xl sm:text-5xl font-bold mb-4 leading-tight">
+            Harika!
           </h1>
-          <Zap className="w-10 h-10 text-yellow-400" />
-        </div>
+          <p className="text-xl sm:text-2xl text-white/80 mb-3">
+            Görev başarıyla tamamlandı. 🎉
+          </p>
+          <p className="text-lg text-white/60 mb-8">
+            Şimdi bu web sitesini yaparken harcadığım süreyi kahve içerken anlatabilirim. 😄
+          </p>
 
-        <p className="text-gray-300 text-lg mb-8">
-          Modern, fast, and lightweight React project with Tailwind CSS & Lucide Icons
-        </p>
-
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mb-8">
-          <button
-            onClick={() => setCount((c) => c + 1)}
-            className="px-6 py-3 bg-purple-600 hover:bg-purple-500 rounded-xl font-semibold text-lg transition-all duration-200 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer"
-          >
-            <Heart className="w-5 h-5" />
-            Count is {count}
-          </button>
+          <div className="flex items-center justify-center gap-3 text-5xl mb-8">
+            <Coffee /> <Heart className="text-red-400 float-slow" /> <Coffee />
+          </div>
 
           <button
-            onClick={handleStartQuiz}
-            className="px-6 py-3 bg-gradient-to-r from-pink-600 to-red-600 hover:from-pink-500 hover:to-red-500 rounded-xl font-semibold text-lg transition-all duration-200 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer"
+            onClick={() => {
+              setScene('opening')
+              setAchievements(['enter'])
+            }}
+            className="px-8 py-4 glass hover:bg-white/15 rounded-xl font-semibold text-lg transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
           >
-            <Play className="w-5 h-5" />
-            Quiz'e Başla
+            Baştan Başla
           </button>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-400">
-          <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-            <p className="font-semibold text-white mb-1">Vite</p>
-            <p>Lightning-fast HMR</p>
-          </div>
-          <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-            <p className="font-semibold text-white mb-1">Tailwind CSS</p>
-            <p>Utility-first styling</p>
-          </div>
-          <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-            <p className="font-semibold text-white mb-1">Lucide Icons</p>
-            <p>Beautiful SVG icons</p>
-          </div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  // Fallback (olmamali)
+  return null
 }
 
 export default App
