@@ -128,15 +128,15 @@ function RisingHearts() {
 // Gorev takipci bileseni
 function AchievementTracker({ completedIds }) {
   return (
-    <div className="fixed top-3 right-3 sm:top-4 sm:right-4 z-50 scene-fade">
-      <div className="glass rounded-xl px-3 py-2 text-xs sm:text-sm">
-        <p className="font-semibold text-white/80 mb-1">Görevler</p>
+    <div className="fixed top-4 right-4 z-50 scene-fade">
+      <div className="glass rounded-xl px-4 py-3 text-xs sm:text-sm">
+        <p className="font-semibold text-white/80 mb-2">Görevler</p>
         {ACHIEVEMENTS.map((a) => {
           const done = completedIds.includes(a.id)
           return (
             <div
               key={a.id}
-              className={`flex items-center gap-1.5 transition-all duration-500 ${
+              className={`flex items-center gap-2 transition-all duration-500 ${
                 done ? 'opacity-100' : 'opacity-30'
               }`}
             >
@@ -198,19 +198,19 @@ function App() {
             <Heart className="w-5 h-5 text-pink-400/30 float-slow" style={{ animationDelay: '2s' }} />
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-bold mb-4 leading-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-4 leading-tight tracking-tight">
             Normal insanlar mesaj atıyor.
           </h1>
-          <p className="text-xl sm:text-2xl text-white/70 mb-2">
+          <p className="text-lg sm:text-xl text-white/70 mb-2">
             Ben ise küçük bir web sitesi yaptım.
           </p>
-          <p className="text-sm text-white/40 mb-8">
+          <p className="text-xs sm:text-sm text-white/50 mb-8">
             Bu biraz gereksiz miydi? Evet.
           </p>
 
           <button
             onClick={() => goScene('story', 'enter')}
-            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-2xl font-semibold text-lg transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer shadow-lg shadow-purple-500/30"
+            className="relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-2xl font-semibold text-lg transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer shadow-lg shadow-purple-500/30 attention-pulse"
           >
             Başlayalım →
           </button>
@@ -218,7 +218,7 @@ function App() {
 
         {/* Rastgele eglenceli mesaj - alt kısımda toast */}
         <div
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 glass rounded-xl px-4 py-2 text-sm text-white/50 max-w-sm text-center"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 glass rounded-xl px-5 py-3 text-sm text-white/50 max-w-sm text-center"
           style={{ animation: 'toast-in 0.6s ease-out 1s both' }}
         >
           {randomMessage}
@@ -303,7 +303,7 @@ function App() {
 
         {/* Arka plan isiklari */}
         <div className="orb w-72 h-72 bg-pink-500 top-1/3 left-1/4" />
-        <div className="orb w-56 h-56 bg-amber-500 bottom-1/4 right-1/4" style={{ animationDelay: '4s' }} />
+        <div className="orb w-56 h-56 bg-purple-500 bottom-1/4 right-1/4" style={{ animationDelay: '4s' }} />
 
         {/* Ana icerik - blur gecis efekti */}
         <div className="relative z-10 text-center max-w-2xl scene-fade" style={{ animation: 'blur-in 1s ease-out' }}>
@@ -312,17 +312,17 @@ function App() {
             <Heart className="w-10 h-10 text-red-400 absolute -top-2 -right-2 float-slow" />
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-bold mb-4 leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-bold mb-4 leading-tight tracking-tight">
             Harika!
           </h1>
           <p className="text-xl sm:text-2xl text-white/80 mb-3">
             Görev başarıyla tamamlandı. 🎉
           </p>
-          <p className="text-lg text-white/60 mb-8">
+          <p className="text-base sm:text-lg text-white/60 mb-8">
             Şimdi bu web sitesini yaparken harcadığım süreyi kahve içerken anlatabilirim. 😄
           </p>
 
-          <div className="flex items-center justify-center gap-3 text-5xl mb-8">
+          <div className="flex items-center justify-center gap-4 text-5xl mb-8">
             <Coffee /> <Heart className="text-red-400 float-slow" /> <Coffee />
           </div>
 

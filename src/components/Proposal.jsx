@@ -77,7 +77,7 @@ export default function Proposal({ onAccept }) {
       {/* Ikna Seviyesi Gostergesi - ustte sabit */}
       <div className="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2 w-full max-w-xs px-4 z-20 scene-fade">
         <div className="glass rounded-2xl px-4 py-3 text-center">
-          <p className="text-sm font-semibold text-white/80 mb-1.5">
+          <p className="text-xs font-medium uppercase tracking-wider text-white/80 mb-1.5">
             İkna Seviyesi
           </p>
           {/* Ilerleme cubugu */}
@@ -103,7 +103,7 @@ export default function Proposal({ onAccept }) {
         </div>
 
         {/* Ana soru */}
-        <h1 className="text-3xl sm:text-4xl font-bold mb-3 leading-tight">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-3 leading-tight tracking-tight">
           Bir kahve içmeye ne dersin? ☕
         </h1>
 
@@ -138,7 +138,7 @@ export default function Proposal({ onAccept }) {
                     top: `${noPos.y}px`,
                     left: `${noPos.x}px`,
                     zIndex: 50,
-                    transition: 'top 0.3s ease, left 0.3s ease',
+                    transition: 'top 0.3s ease, left 0.3s ease, transform 0.2s ease',
                   }
                 : undefined
             }

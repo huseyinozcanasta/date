@@ -115,9 +115,9 @@ export default function Quiz({ onComplete }) {
         {/* Baslik */}
         <div className="text-center mb-8 scene-fade">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Sparkles className="w-8 h-8 text-yellow-400" />
-            <h1 className="text-3xl sm:text-4xl font-bold">Beni Tanıyor musun?</h1>
-            <Sparkles className="w-8 h-8 text-yellow-400" />
+            <Sparkles className="w-8 h-8 text-amber-300" />
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Beni Tanıyor musun?</h1>
+            <Sparkles className="w-8 h-8 text-amber-300" />
           </div>
           <p className="text-white/60">Eğlenceli quiz zamanı! Bakalım beni ne kadar tanıyorsun 🎉</p>
         </div>
@@ -143,14 +143,14 @@ export default function Quiz({ onComplete }) {
         {/* Soru karti - glassmorphism + slide-in animasyonu */}
         <div
           key={animKey}
-          className="glass rounded-2xl p-6 sm:p-8 shadow-2xl slide-in"
+          className="glass rounded-2xl p-6 sm:p-8 shadow-xl slide-in"
         >
           <h2 className="text-xl sm:text-2xl font-semibold mb-6 text-center leading-relaxed">
             {question.question}
           </h2>
 
           {/* Secenekler */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             {question.options.map((option, index) => {
               const isSelected = selectedAnswer === index
               const showCorrect = isCorrect && isSelected
@@ -162,15 +162,15 @@ export default function Quiz({ onComplete }) {
                   onClick={() => handleAnswer(index)}
                   disabled={showMeme && !isCorrect}
                   className={`
-                    w-full min-h-12 px-5 py-4 rounded-xl text-left font-medium
+                    w-full min-h-12 px-5 py-4 rounded-xl text-left font-medium text-base
                     transition-all duration-300 transform
                     ${showCorrect
                       ? 'bg-green-600/80 border-green-400 scale-105 shadow-lg shadow-green-500/30'
                       : showWrong
-                      ? 'bg-red-600/80 border-red-400 scale-95 opacity-75'
+                      ? 'bg-red-600/80 border-red-400 scale-[0.98] opacity-75'
                       : 'bg-white/10 hover:bg-white/20 border-white/20 hover:scale-[1.02] active:scale-[0.98]'
                     }
-                    border-2 cursor-pointer disabled:cursor-not-allowed
+                    border-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50
                     flex items-center justify-between gap-3
                   `}
                 >

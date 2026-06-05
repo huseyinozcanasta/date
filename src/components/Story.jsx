@@ -85,7 +85,7 @@ export default function Story({ onComplete }) {
         {scenes.map((_, i) => (
           <div
             key={i}
-            className={`w-2 h-2 rounded-full transition-all duration-500 ${
+            className={`w-2.5 h-2.5 rounded-full transition-all duration-500 ${
               i <= currentScene ? 'bg-white scale-100' : 'bg-white/30 scale-75'
             }`}
           />
@@ -95,11 +95,11 @@ export default function Story({ onComplete }) {
       {/* Ana icerik */}
       <div
         className={`text-center max-w-xl transition-all duration-500 ${
-          fading ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
+          fading ? 'opacity-0 translate-y-4 blur-sm' : 'opacity-100 translate-y-0 blur-0'
         }`}
       >
         {/* Ana metin */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-4 scene-fade">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-4 tracking-tight scene-fade">
           {scene.main}
         </h1>
 
@@ -114,7 +114,7 @@ export default function Story({ onComplete }) {
       </div>
 
       {/* Alt ipucu */}
-      <p className="absolute bottom-8 text-white/30 text-sm animate-pulse">
+      <p className="absolute bottom-8 text-white/45 text-sm animate-pulse">
         {currentScene < scenes.length - 1 ? 'devam etmek için tıkla' : ''}
       </p>
     </div>

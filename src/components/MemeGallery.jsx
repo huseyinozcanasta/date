@@ -90,7 +90,7 @@ export default function MemeGallery({ onComplete }) {
 
       {/* Baslik */}
       <div className="text-center mb-8 sm:mb-10 scene-fade relative z-10">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-2">Biraz Gerçekçi Olalım</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2 tracking-tight">Biraz Gerçekçi Olalım</h1>
         <p className="text-white/60">Bu kartlar %100 gerçektir. Kaynak: Ben.</p>
       </div>
 
@@ -104,7 +104,7 @@ export default function MemeGallery({ onComplete }) {
             onMouseEnter={() => setFlippedId(card.id)}
             onMouseLeave={() => handleMouseLeave(card.id)}
             onClick={() => setFlippedId(flippedId === card.id ? null : card.id)}
-            className="glass rounded-2xl p-6 cursor-pointer select-none scene-fade transition-shadow duration-300 hover:shadow-lg hover:shadow-purple-500/20"
+            className="glass rounded-2xl p-5 cursor-pointer select-none scene-fade transition-shadow duration-300 hover:shadow-xl hover:shadow-purple-500/20"
             style={{
               animationDelay: `${i * 0.12}s`,
               transformStyle: 'preserve-3d',
@@ -112,10 +112,10 @@ export default function MemeGallery({ onComplete }) {
             }}
           >
             {/* Emoji */}
-            <div className="text-4xl mb-3">{card.emoji}</div>
+            <div className="text-4xl mb-4">{card.emoji}</div>
 
             {/* Baslik */}
-            <h3 className="text-lg font-semibold mb-2">{card.title}</h3>
+            <h3 className="text-base font-semibold mb-2">{card.title}</h3>
 
             {/* Once/sonra metinleri */}
             <p className="text-white/70 text-sm leading-relaxed mb-2">{card.before}</p>
@@ -137,7 +137,7 @@ export default function MemeGallery({ onComplete }) {
       {/* Devam et butonu */}
       <button
         onClick={onComplete}
-        className="mt-8 sm:mt-10 px-8 py-4 glass rounded-2xl font-semibold text-lg transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer hover:bg-white/15 relative z-10 scene-fade"
+        className="mt-8 sm:mt-10 px-8 py-4 glass rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer hover:bg-white/15 relative z-10 scene-fade"
         style={{ animationDelay: '0.8s' }}
       >
         Devam et →
