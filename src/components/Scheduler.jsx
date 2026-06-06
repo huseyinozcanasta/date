@@ -32,7 +32,7 @@ export default function Scheduler({ onComplete }) {
       `Merhaba! ☕ Kahve randevumuz için tarih belirledim:\n\n` +
       `📅 ${dayNum} ${monthName} ${dateObj.getFullYear()}, ${dayName}\n` +
       `🕐 Saat ${hours}:${minutes}\n\n` +
-      `Sabırsızlıkla bekliyorum! 💕`
+      `Sabırsızlıkla bekliyorum! :)`
 
     const encodedText = encodeURIComponent(message)
     const url = `https://wa.me/${MY_PHONE_NUMBER}?text=${encodedText}`
