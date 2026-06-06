@@ -11,12 +11,12 @@ export const config = {
   // Instagram Reel URL'leri
   reels: {
     // Meme sayfasında gösterilen reel
-    memeReel: 'https://www.instagram.com/reel/DW3-oVhxrB8/embed',
+    memeReel: 'https://www.instagram.com/reel/DV9keSdjZZy/embed',
 
     // Quiz arasında gösterilen reeller (sırayla)
     quizReels: [
-      'https://www.instagram.com/reel/DZNLlphNXCC/embed',
-      'https://www.instagram.com/reel/DXHqPr3EtBS/embed',
+      'https://www.instagram.com/reel/DVwDjXPjJ1E/embed',
+      'https://www.instagram.com/reel/DWUKe4PhuCr/embed',
     ],
   },
 
