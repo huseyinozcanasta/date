@@ -15,7 +15,7 @@ export default function MemeGallery({ onComplete }) {
       {/* Baslik */}
       <div className="text-center mb-8 sm:mb-10 scene-fade relative z-10">
         <h1 className="text-3xl sm:text-4xl font-bold mb-2 tracking-tight">Biraz Gerçekçi Olalım</h1>
-        <p className="text-white/60">Bu video %100 gerçektir. Kaynak: Ben.</p>
+        <p className="text-white/60">Vidolar için yeteri kadar düşünmemiş olabilirim cdjskbfvhjf</p>
       </div>
 
       {/* Instagram Reel Embed */}
