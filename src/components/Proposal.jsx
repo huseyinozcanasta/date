@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Heart, Coffee, Sparkles, CheckCircle } from 'lucide-react'
 
-// Kenar boslugu (kacma hesabi icin) - mobilde adres cubugu ve notch hesabi
-const PADDING = 16
+// Kenar boslugu (yuzde cinsinden) - butonun ekran kenarindan minimum uzakligi
+const PAD_PERCENT = 5 // viewport'un %5'i
 
 // Ikna seviyeleri - her kacista bir sonraki seviye
 const PERSUASION_LEVELS = [0, 15, 34, 52, 78, 99]
@@ -27,90 +27,36 @@ const HEART_DATA = Array.from({ length: 12 }, (_, i) => ({
   duration: 4 + (i * 1.3) % 4,
 }))
 
-// Viewport guvenli alanini hesapla (mobilde adres cubugu, klavye, notch vb.)
-function getSafeViewport() {
-  const vv = window.visualViewport
-  const vw = vv ? vv.width : window.innerWidth
-  const vh = vv ? vv.height : window.innerHeight
-  const offsetX = vv ? vv.offsetLeft : 0
-  const offsetY = vv ? vv.offsetTop : 0
-  return { vw, vh, offsetX, offsetY }
-}
-
-// Pozisyonu guvenli alan icine kilitle (clamp)
-function clampPosition(x, y, btnW, btnH) {
-  const { vw, vh, offsetX, offsetY } = getSafeViewport()
-  const minX = offsetX + PADDING
-  const minY = offsetY + PADDING
-  const maxX = offsetX + vw - btnW - PADDING
-  const maxY = offsetY + vh - btnH - PADDING
-
-  // Eger buton ekrana sigmiyorsa ortala
-  const clampedX = maxX >= minX ? Math.max(minX, Math.min(x, maxX)) : offsetX + (vw - btnW) / 2
-  const clampedY = maxY >= minY ? Math.max(minY, Math.min(y, maxY)) : offsetY + (vh - btnH) / 2
-
-  return { x: clampedX, y: clampedY }
+// Rastgele pozisyon uret (yuzde cinsinden, clamp ile sinirli)
+// Buton left:X% top:Y% + translate(-50%,-50%) ile ortalanarak yerlestirilir
+// Boylece butonun merkezi her zaman viewport icinde kalir
+function randomPercent() {
+  const min = PAD_PERCENT
+  const max = 100 - PAD_PERCENT
+  return min + Math.random() * (max - min)
 }
 
 export default function Proposal({ onAccept }) {
   const [noPos, setNoPos] = useState(null) // null = varsayilan pozisyon
   const [escapeCount, setEscapeCount] = useState(0) // Kacis sayaci
-  const noBtnRef = useRef(null) // Hayir butonu ref (gercek boyut olcmek icin)
+  const noBtnRef = useRef(null) // Hayir butonu ref
   // Ikna seviyesi (mevcut escapeCount'a gore)
   const persuasionIndex = Math.min(escapeCount, PERSUASION_LEVELS.length - 1)
   const persuasionPercent = PERSUASION_LEVELS[persuasionIndex]
   // Hayir butonundaki mevcut mesaj
   const currentNoMessage = NO_MESSAGES[Math.min(escapeCount, NO_MESSAGES.length - 1)]
 
-  // Viewport degistikce (resize, scroll, klavye acilma) butonu sinir icinde tut
-  const keepInBounds = useCallback(() => {
-    setNoPos((prev) => {
-      if (!prev) return prev
-      const btn = noBtnRef.current
-      const btnW = btn ? btn.offsetWidth : 160
-      const btnH = btn ? btn.offsetHeight : 56
-      const clamped = clampPosition(prev.x, prev.y, btnW, btnH)
-      // Pozisyon degismediyse ayni referansi dondur (gereksiz render onle)
-      if (clamped.x === prev.x && clamped.y === prev.y) return prev
-      return clamped
-    })
+  // Hayir butonunu rastgele pozisyona tasi
+  const handleMove = useCallback(() => {
+    setNoPos({ x: randomPercent(), y: randomPercent() })
+    setEscapeCount((c) => c + 1)
   }, [])
 
-  useEffect(() => {
-    if (!noPos) return
-    const vv = window.visualViewport
-
-    window.addEventListener('resize', keepInBounds)
-    window.addEventListener('scroll', keepInBounds, true)
-    if (vv) vv.addEventListener('resize', keepInBounds)
-    if (vv) vv.addEventListener('scroll', keepInBounds)
-
-    return () => {
-      window.removeEventListener('resize', keepInBounds)
-      window.removeEventListener('scroll', keepInBounds, true)
-      if (vv) vv.removeEventListener('resize', keepInBounds)
-      if (vv) vv.removeEventListener('scroll', keepInBounds)
-    }
-  }, [noPos, keepInBounds])
-
-  // Hayir butonunu rastgele pozisyona tasi (gercek boyutlarla, mobil uyumlu)
-  const handleMove = () => {
-    const { vw, vh, offsetX, offsetY } = getSafeViewport()
-
-    // Butonun gercek boyutlarini olc
-    const btn = noBtnRef.current
-    const btnW = btn ? btn.offsetWidth : 160
-    const btnH = btn ? btn.offsetHeight : 56
-
-    // Rastgele pozisyon hesapla ve guvenli alan icine kilitle
-    const rawX = Math.floor(Math.random() * vw) + offsetX
-    const rawY = Math.floor(Math.random() * vh) + offsetY
-    const newPos = clampPosition(rawX, rawY, btnW, btnH)
-
-    setNoPos(newPos)
-    // Her kacista ikna sayacini artir
-    setEscapeCount((c) => c + 1)
-  }
+  // onTouchStart'ta preventDefault yap — onClick'in tekrar tetiklenmesini onle
+  const handleTouchStart = useCallback((e) => {
+    e.preventDefault()
+    handleMove()
+  }, [handleMove])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-900 via-rose-900 to-red-900 text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
@@ -184,21 +130,22 @@ export default function Proposal({ onAccept }) {
           <button
             ref={noBtnRef}
             onMouseEnter={handleMove}
-            onTouchStart={handleMove}
-            onClick={handleMove}
+            onTouchStart={handleTouchStart}
             className={`
               bg-red-500/80 hover:bg-red-400 text-white font-bold text-base px-8 py-4 rounded-2xl
               shadow-lg shadow-red-500/20 transition-all duration-300
               flex items-center gap-2 cursor-pointer min-w-[160px] justify-center
-              ${noPos === null ? 'relative' : 'fixed left-0 top-0 touch-manipulation'}
+              touch-manipulation
+              ${noPos === null ? 'relative' : 'fixed'}
             `}
             style={
               noPos
                 ? {
-                    top: `${noPos.y}px`,
-                    left: `${noPos.x}px`,
+                    left: `${noPos.x}%`,
+                    top: `${noPos.y}%`,
+                    transform: 'translate(-50%, -50%)',
                     zIndex: 50,
-                    transition: 'top 0.3s ease, left 0.3s ease, transform 0.2s ease',
+                    transition: 'left 0.3s ease, top 0.3s ease, transform 0.2s ease',
                   }
                 : undefined
             }
