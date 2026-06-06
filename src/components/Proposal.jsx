@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Heart, Coffee, Sparkles, CheckCircle } from 'lucide-react'
 
 // Kenar boslugu (kacma hesabi icin) - mobilde adres cubugu ve notch hesabi
-const PADDING = 24
+const PADDING = 16
 
 // Ikna seviyeleri - her kacista bir sonraki seviye
 const PERSUASION_LEVELS = [0, 15, 34, 52, 78, 99]
@@ -27,6 +27,31 @@ const HEART_DATA = Array.from({ length: 12 }, (_, i) => ({
   duration: 4 + (i * 1.3) % 4,
 }))
 
+// Viewport guvenli alanini hesapla (mobilde adres cubugu, klavye, notch vb.)
+function getSafeViewport() {
+  const vv = window.visualViewport
+  const vw = vv ? vv.width : window.innerWidth
+  const vh = vv ? vv.height : window.innerHeight
+  const offsetX = vv ? vv.offsetLeft : 0
+  const offsetY = vv ? vv.offsetTop : 0
+  return { vw, vh, offsetX, offsetY }
+}
+
+// Pozisyonu guvenli alan icine kilitle (clamp)
+function clampPosition(x, y, btnW, btnH) {
+  const { vw, vh, offsetX, offsetY } = getSafeViewport()
+  const minX = offsetX + PADDING
+  const minY = offsetY + PADDING
+  const maxX = offsetX + vw - btnW - PADDING
+  const maxY = offsetY + vh - btnH - PADDING
+
+  // Eger buton ekrana sigmiyorsa ortala
+  const clampedX = maxX >= minX ? Math.max(minX, Math.min(x, maxX)) : offsetX + (vw - btnW) / 2
+  const clampedY = maxY >= minY ? Math.max(minY, Math.min(y, maxY)) : offsetY + (vh - btnH) / 2
+
+  return { x: clampedX, y: clampedY }
+}
+
 export default function Proposal({ onAccept }) {
   const [noPos, setNoPos] = useState(null) // null = varsayilan pozisyon
   const [escapeCount, setEscapeCount] = useState(0) // Kacis sayaci
@@ -37,31 +62,52 @@ export default function Proposal({ onAccept }) {
   // Hayir butonundaki mevcut mesaj
   const currentNoMessage = NO_MESSAGES[Math.min(escapeCount, NO_MESSAGES.length - 1)]
 
+  // Viewport degistikce (resize, scroll, klavye acilma) butonu sinir icinde tut
+  const keepInBounds = useCallback(() => {
+    setNoPos((prev) => {
+      if (!prev) return prev
+      const btn = noBtnRef.current
+      const btnW = btn ? btn.offsetWidth : 160
+      const btnH = btn ? btn.offsetHeight : 56
+      const clamped = clampPosition(prev.x, prev.y, btnW, btnH)
+      // Pozisyon degismediyse ayni referansi dondur (gereksiz render onle)
+      if (clamped.x === prev.x && clamped.y === prev.y) return prev
+      return clamped
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!noPos) return
+    const vv = window.visualViewport
+
+    window.addEventListener('resize', keepInBounds)
+    window.addEventListener('scroll', keepInBounds, true)
+    if (vv) vv.addEventListener('resize', keepInBounds)
+    if (vv) vv.addEventListener('scroll', keepInBounds)
+
+    return () => {
+      window.removeEventListener('resize', keepInBounds)
+      window.removeEventListener('scroll', keepInBounds, true)
+      if (vv) vv.removeEventListener('resize', keepInBounds)
+      if (vv) vv.removeEventListener('scroll', keepInBounds)
+    }
+  }, [noPos, keepInBounds])
+
   // Hayir butonunu rastgele pozisyona tasi (gercek boyutlarla, mobil uyumlu)
   const handleMove = () => {
-    // Mobilde adres cubugu/zoom hesabi icin visualViewport tercih et
-    const vw = window.visualViewport?.width ?? window.innerWidth
-    const vh = window.visualViewport?.height ?? window.innerHeight
+    const { vw, vh, offsetX, offsetY } = getSafeViewport()
 
     // Butonun gercek boyutlarini olc
     const btn = noBtnRef.current
     const btnW = btn ? btn.offsetWidth : 160
     const btnH = btn ? btn.offsetHeight : 56
 
-    // Min/max sinirlari hesapla (buton asla ekran disina cikamaz)
-    const minX = PADDING
-    const minY = PADDING
-    const maxX = vw - btnW - PADDING
-    const maxY = vh - btnH - PADDING
+    // Rastgele pozisyon hesapla ve guvenli alan icine kilitle
+    const rawX = Math.floor(Math.random() * vw) + offsetX
+    const rawY = Math.floor(Math.random() * vh) + offsetY
+    const newPos = clampPosition(rawX, rawY, btnW, btnH)
 
-    // Rastgele pozisyon hesapla ve sinirlar icine kilitle (clamp)
-    // Eger buton ekrana sigmiyorsa ortala
-    const rawX = Math.floor(Math.random() * vw)
-    const rawY = Math.floor(Math.random() * vh)
-    const newX = maxX >= minX ? Math.max(minX, Math.min(rawX, maxX)) : (vw - btnW) / 2
-    const newY = maxY >= minY ? Math.max(minY, Math.min(rawY, maxY)) : (vh - btnH) / 2
-
-    setNoPos({ x: newX, y: newY })
+    setNoPos(newPos)
     // Her kacista ikna sayacini artir
     setEscapeCount((c) => c + 1)
   }
